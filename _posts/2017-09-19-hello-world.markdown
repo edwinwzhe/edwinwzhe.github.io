@@ -1,10 +1,10 @@
 ---
 title:  "Welcome to my blog!"
 date:   2017-09-08 15:04:23
-categories: [placeholder]
-tags: [placeholder]
+categories: [python]
+tags: [python]
 ---
-My blog hosted on github. So easy I love you guys!
+Hello World! So easy! I love you guys! 
 
 ``` python
 >>> print('Hello World')
