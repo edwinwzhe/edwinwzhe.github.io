@@ -37,7 +37,7 @@ Anomaly is identified by the model returning a probability below a predefined th
 
 
 ### 4. Misc
-Jupyter Notebook on [Github](https://github.com/edwinwzhe/blog_projects/blob/master/anomaly_detection/AnomalyDetection.ipynb)
+Jupyter Notebook on [Github](https://github.com/edwinwzhe/machine_learning/blob/master/anomaly_detection/AnomalyDetection.ipynb)
 
 ### 5. Reference
 [1] TBA
