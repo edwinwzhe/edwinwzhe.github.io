@@ -21,6 +21,8 @@ There are many sophisticated CNN models already pretrained with [ImageNet images
 
 In this blog, I will train an image classifier using the KTH-ANIMALS dataset[\[3\]](https://www.csc.kth.se/~heydarma/Datasets.html) to classify 19 different animals with CNN. I will also look to utilize the trained weight to peak into how CNN makes predictions, which can also be used for object localization.
 
+Jupyter notebook for the blog is available [here](https://github.com/edwinwzhe/deep_learning/blob/master/transfer_learning_keras/transfer_learning_with_keras.ipynb).  
+
 
 ## Data Exploration
 
