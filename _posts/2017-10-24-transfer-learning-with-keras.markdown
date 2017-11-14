@@ -27,19 +27,19 @@ In this blog, I will train an image classifier using the KTH-ANIMALS dataset[\[3
 The KTH-ANIMALS dataset[\[3\]](https://www.csc.kth.se/~heydarma/Datasets.html) contains only 1740 images in total and are of different shapes from ~200 to ~400 pixels width and height. 
 Figure 1 shows the images in their original shape. 
 
-![Input Images]({{ site.url }}/assets/mlnano_capstone/input_images_original.png)
+![Input Images]({{ site.url }}/assets/transfer_learning_with_keras/input_images_original.png)
 _Figure 1: Images as original shape_
 
 ## Exploratory Visualization
 
 KDE plot of R,G,B channels for each class tells us the color distribution for each class. Animals in dark yellow such as coyote, horse, leopard, lion and tiger contributes to the peaks on the left of the red channel. These pictures are taken in the wild which explains the significant amount of dark green and dark blue in most classes due to the grass field and the sky. 
 
-![KDE By Class]({{ site.url }}/assets/mlnano_capstone/kde_by_class.png)
+![KDE By Class]({{ site.url }}/assets/transfer_learning_with_keras/kde_by_class.png)
 _Figure 2: KDE plot by class_
 
 
 Training data count by class shows the dataset is quite evenly distributed.
-![Input Images]({{ site.url }}/assets/mlnano_capstone/training_label_count.png)
+![Input Images]({{ site.url }}/assets/transfer_learning_with_keras/training_label_count.png)
 _Figure 3: Image count by class_
 
 
@@ -47,7 +47,7 @@ _Figure 3: Image count by class_
 I randomly splitting the data into training, validation and test set containing 1460, 180 and 100 images respectively. Leaving us merely 78 images on average per class which is far from sufficient to train a CNN model from stretch to classify such a diverse dataset. Add another 40 images from Google to the test set (140 images in total).
 
 Images are loaded as 224x224 pixels images. Figure 4 shows the images loaded. 
-![Input Images]({{ site.url }}/assets/mlnano_capstone/input_images_224x224.png)  
+![Input Images]({{ site.url }}/assets/transfer_learning_with_keras/input_images_224x224.png)  
 _Figure 4: Images loaded as 224x224_
 
 Image Augmentation is applied to training data to combat overfitting and to make the models more robust.
@@ -61,35 +61,35 @@ datagen = ImageDataGenerator(
 ```
 
 Figure 5 shows the augmented images. 
-![Input Images]({{ site.url }}/assets/mlnano_capstone/input_images_224x224_augmented.png)  
+![Input Images]({{ site.url }}/assets/transfer_learning_with_keras/input_images_224x224_augmented.png)  
 _Figure 5: Images Augmented_
 
 
 ## Benchmark Model
 Our benchmark model - a CNN model contains 5 Convolutional layers - similar architecture to VGG19 except that every block has only one CNN layer and Global Average Pooling(GAP) is used instead of Fully Connected(FC) layer to reduce overfitting. 
 
-![Benchmark Model]({{ site.url }}/assets/mlnano_capstone/benchmark_model.png)  
+![Benchmark Model]({{ site.url }}/assets/transfer_learning_with_keras/benchmark_model.png)  
 _Figure 6: Benchmark Model_
 
 A simpler model tend to easily overfit(or underfit if too simple) while a deeper model cannot learn due to the limitation of the insufficient number of training data. 
 
 It took 259.6 seconds, 29 epochs to finish training the benchmark model. 8.95 seconds per epoch. On test dataset, it achieves 57% accuracy, 0.5479 kappa score and 1.83 cross-entropy loss at the 23th epoch.
 
-![Benchmark Model Result]({{ site.url }}/assets/mlnano_capstone/model_result_benchmark1.png)
-![Benchmark Model Result]({{ site.url }}/assets/mlnano_capstone/model_result_benchmark2.png)  
+![Benchmark Model Result]({{ site.url }}/assets/transfer_learning_with_keras/model_result_benchmark1.png)
+![Benchmark Model Result]({{ site.url }}/assets/transfer_learning_with_keras/model_result_benchmark2.png)  
 _Figure 7: Benchmark Model Result_
 
 
 ## Transfer Learning 
 I first build a transfer learning model - a VGG19 with weights pre-trained on ImageNet dataset with top layers(two FC layers) replaced with a top model.
 
-![VGG19]({{ site.url }}/assets/mlnano_capstone/VGG19.png)  
+![VGG19]({{ site.url }}/assets/transfer_learning_with_keras/VGG19.png)  
 _Figure 8: VGG19_
 
 
 Figure 9 shows the Top Model used to replace the two FC layers and the output layer (in purple above).
 
-![Top Model]({{ site.url }}/assets/mlnano_capstone/top_model.png)  
+![Top Model]({{ site.url }}/assets/transfer_learning_with_keras/top_model.png)  
 _Figure 9: Top Model_ 
 
 
@@ -111,8 +111,8 @@ I then use the bottleneck features as the input to train the weight of the top m
 
 It took 40.83 seconds, 235 epochs to finish training the top model. Merely 0.17 second per epoch. Achieve 60% test accuracy, 0.5777 kappa score and 1.41 log loss at the 224th epoch.
 
-![Top Model Result]({{ site.url }}/assets/mlnano_capstone/model_result_top1.png)
-![Top Model Result]({{ site.url }}/assets/mlnano_capstone/model_result_top2.png)
+![Top Model Result]({{ site.url }}/assets/transfer_learning_with_keras/model_result_top1.png)
+![Top Model Result]({{ site.url }}/assets/transfer_learning_with_keras/model_result_top2.png)
 _Figure 10: Top Model Result_
 
 
@@ -142,13 +142,13 @@ for n, layer in enumerate(model.layers):
 ```
 
 Here is the model with weights trainable from block5_conv1.
-![Combined Model]({{ site.url }}/assets/mlnano_capstone/combined_model.png)
+![Combined Model]({{ site.url }}/assets/transfer_learning_with_keras/combined_model.png)
 _Figure 11: Fine-Tuned Model_
 
 It took 375.82 seconds, 30 epochs to finish fine tuning the model. 12.5 seconds per epoch. Achieve 80% test accuracy, 0.7890 kappa score and 0.93 log loss at the 24th epoch. Another +20% improvement in test accuracy. 
 
-![Combined Model Result]({{ site.url }}/assets/mlnano_capstone/model_result_combined1.png)
-![Combined Model Result]({{ site.url }}/assets/mlnano_capstone/model_result_combined2.png)
+![Combined Model Result]({{ site.url }}/assets/transfer_learning_with_keras/model_result_combined1.png)
+![Combined Model Result]({{ site.url }}/assets/transfer_learning_with_keras/model_result_combined2.png)
 _Figure 12: Fine-Tuned Model Result_
 
 ## Result
@@ -169,7 +169,7 @@ I use Global Average Pooling(GAP) instead of Fully Connected(FC) layers not only
 
 The idea behind is simple. When using GAP layer before the final FC layer. The weights (512x1 vector - blue dotted lines below) connecting the GAP to each of the output node, e.g. panda, tell us which of those 512 feature maps activates the output the most. And each of the 512 nodes in GAP layer is calculated averaging a 7x7 feature map, green dotted lines below.
 
-![Object Localization Explained]({{ site.url }}/assets/mlnano_capstone/object_localization_explained.png)  
+![Object Localization Explained]({{ site.url }}/assets/transfer_learning_with_keras/object_localization_explained.png)  
 _Figure 13: Weights to Activation Map_
 
 Therefore multiplying 7x7x512 by 512x1 gives us the weighted feature map - the activation map which allow us to visualize which part of the image is activating that particular output class. Below I will show it in action.
@@ -201,18 +201,18 @@ activation_map = np.dot(last_conv_output, fc_layer_weights) # 14x14x512 * 512x1 
 
 ### Object Localization
 Passing below image with two pandas through the steps above returns a 14x14 activation map below.
-![Object Localization 2Pandas]({{ site.url }}/assets/mlnano_capstone/object_localization_2pandas.png)
+![Object Localization 2Pandas]({{ site.url }}/assets/transfer_learning_with_keras/object_localization_2pandas.png)
 
 Upsampling the activation map 16 times (224x224) and overlay it on top of the original image shows that the model predicts panda mostly due to the iconic look of the face of pandas. Especially the eyes. 
 
-![Object Localization 2Pandas Overlay]({{ site.url }}/assets/mlnano_capstone/object_localization_2pandas_overlay.png)
+![Object Localization 2Pandas Overlay]({{ site.url }}/assets/transfer_learning_with_keras/object_localization_2pandas_overlay.png)
 
 This method offers a near effortless object localization by simply passing an image through a trained CNN and some simple matrix calculation.
 
 ### What CNN is looking when making predictions
 I randomly picked 15 classes and download pictures for each class. Figure 16 shows that the model correctly classified all new images and also showing what the CNN is looking at when predicting the class label. For example, The elephant's body and nose; The patten on the body of zebra and leopard; The black and white of panda, etc. These are strong evidences the model is learning to identify animals by identifying them by their key difference from the others.
 
-![What CNN is looking at]({{ site.url }}/assets/mlnano_capstone/what_cnn_is_looking_at.png)
+![What CNN is looking at]({{ site.url }}/assets/transfer_learning_with_keras/what_cnn_is_looking_at.png)
 _Figure 14: CNN object localization_
 
 ## Conclusion 
