@@ -19,7 +19,7 @@ Similarly after training a network to learn dogs and cats, we should not have to
 
 There are many sophisticated CNN models already pretrained with [ImageNet images](www.image-net.org). i.e. it has learned to classify the 1000 objects in the ImageNet and have also learned the parts that assembles them. We then just have to transfer the knowledge to our tasks without having to learn the basic elements of objects from stretch. This will solve our problem as it greatly reduces the number of trainable weights in our model which requires way less data and effort to learn. 
 
-In this blog, I will train an image classifier using the KTH-ANIMALS dataset[\[3\]](https://www.csc.kth.se/~heydarma/Datasets.html) to classify 19 different animals with CNN. I will also look to utilize the trained weight to peak into how CNN makes predictions, which can also be used for object localization.
+In this blog, I will train an image classifier using the KTH-ANIMALS dataset[\[3\]](https://www.csc.kth.se/~heydarma/Datasets.html) to classify 19 different animals with CNN. 
 
 Jupyter notebook for this blog is available [here](https://github.com/edwinwzhe/deep_learning/blob/master/transfer_learning_keras/transfer_learning_with_keras.ipynb).  
 
@@ -166,61 +166,8 @@ The fine-tune model significantly improve the model in all metrics.
 _Table 1 Model Evaluation_
 
 
-## What CNN is seeing
-I use Global Average Pooling(GAP) instead of Fully Connected(FC) layers not only for reducing overfitting but also it brings an interesting byproduct - weights of the last CNN can be used for nearly effortless object localization. [7][8]
-
-The idea behind is simple. When using GAP layer before the final FC layer. The weights (512x1 vector - blue dotted lines below) connecting the GAP to each of the output node, e.g. panda, tell us which of those 512 feature maps activates the output the most. And each of the 512 nodes in GAP layer is calculated averaging a 7x7 feature map, green dotted lines below.
-
-![Object Localization Explained]({{ site.url }}/assets/transfer_learning_with_keras/object_localization_explained.png)  
-_Figure 13: Weights to Activation Map_
-
-Therefore multiplying 7x7x512 by 512x1 gives us the weighted feature map - the activation map which allow us to visualize which part of the image is activating that particular output class. Below I will show it in action.
-
-* __Build a new model__  
-First create a new model with the trained model above adding an extra output from the last Convolutional Layer. 
-``` python
-last_cnn_layer = -6  # the last convolution layer
-output_layer = -2    # the last layer (-1) is softmax activation in the current setting
-new_model = Model(inputs=model.input, outputs=(model.layers[last_cnn_layer].get_output_at(1), model.layers[output_layer].get_output_at(1))) 
-```
-
-* __Get convolution output and prediction__  
-Pass the image through the model to obtain the last convolution output as well as the predicted class
-``` python
-# get filtered images from convolutional output + model prediction vector
-last_conv_output, pred_vec = new_model.predict(img_path_to_tensor(img_path))
-last_conv_output = np.squeeze(last_conv_output)  # (1, 14, 14, 512) --> (14, 14, 512)
-pred = np.argmax(pred_vec) # get predicted class
-```
-
-* __Get the FC layer weight (512x1)__  
-Get the FC layer weight that conneted to the predicted class. Multiply the last convolution output (14x14x512 - green dotted lines) by the FC layer weight (512x1 - blue dotted lines)      
-``` python
-all_fc_layer_weights = model.layers[output_layer].get_weights()[0]  # 512x19 (19 classes)
-fc_layer_weights = all_fc_layer_weights[:, pred] * -1 # 512x1
-activation_map = np.dot(last_conv_output, fc_layer_weights) # 14x14x512 * 512x1 = 14x14 
-```
-
-### Object Localization
-Passing below image with two pandas through the steps above returns a 14x14 activation map below.
-![Object Localization 2Pandas]({{ site.url }}/assets/transfer_learning_with_keras/object_localization_2pandas.png)
-
-Upsampling the activation map 16 times (224x224) and overlay it on top of the original image shows that the model predicts panda mostly due to the iconic look of the face of pandas. Especially the eyes. 
-
-![Object Localization 2Pandas Overlay]({{ site.url }}/assets/transfer_learning_with_keras/object_localization_2pandas_overlay.png)
-
-This method offers a near effortless object localization by simply passing an image through a trained CNN and some simple matrix calculation.
-
-### What CNN is looking when making predictions
-I randomly picked 15 classes and download pictures for each class. Figure 16 shows that the model correctly classified all new images and also showing what the CNN is looking at when predicting the class label. For example, The elephant's body and nose; The patten on the body of zebra and leopard; The black and white of panda, etc. These are strong evidences the model is learning to identify animals by identifying them by their key difference from the others.
-
-![What CNN is looking at]({{ site.url }}/assets/transfer_learning_with_keras/what_cnn_is_looking_at.png)
-_Figure 14: CNN object localization_
-
 ## Conclusion 
-This blog post demonstrated how powerful transfer learning is by outperforming a non-trivial CNN model trained from stretch with just a fraction of the training time when the training data is insufficient. Also how pretrained model can be further fine-tuned to obtain massive performance improvement that could not otherwise be achievable if training a new CNN model. We can see huge potentials applying transfer learning in real life applications especially in testing out new ideas quickly without having to collect a huge amount of train data and a long training time.
-
-We have also demonstrated an interesting byproduct of CNN model using Global Average Pooling layer between the last Convolutional layer and the Fully Connected output layer. Potentially when dealing with images with multiple objects, we could use some of the highest scored (not just the best) FC weights to build the activation map to obtain the location of objects recognized by the mode then further feed the sub-images containing the objects through the CNN again to obtain the classes for all bounding boxes. Other studies have been made to utilize this method for more robust object localization, such as the study by Singh and Lee [9] where they expand the bounding box by randomly turning off parts of the training images to force the network to learn other parts of the object (not just the most iconic part like the panda face in our example).
+This blog post demonstrated how powerful transfer learning is by outperforming a non-trivial CNN model trained from stretch with just a fraction of the training time which insufficient training data. Also how pretrained model can be further fine-tuned to obtain massive performance improvement that could not otherwise be achievable if training a new CNN model. We can see huge potentials applying transfer learning in real life applications especially in testing out new ideas quickly without having to collect a huge amount of train data and a long training time.
 
 
 ## Reference
@@ -232,4 +179,3 @@ We have also demonstrated an interesting byproduct of CNN model using Global Ave
 [6] https://www.kaggle.com/wiki/LogLoss <br/>
 [7] http://cnnlocalization.csail.mit.edu/Zhou_Learning_Deep_Features_CVPR_2016_paper.pdf <br/>
 [8] https://alexisbcook.github.io/2017/global-average-pooling-layers-for-object-localization/ <br/>
-[9] http://krsingh.cs.ucdavis.edu/krishna_files/papers/hide_and_seek/my_files/iccv2017.pdf
