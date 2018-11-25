@@ -1,6 +1,6 @@
 # Site settings
 title: Edwin He
-description: 'Software Engineer/Python Developer'
+description: 'Python Developer'
 url: 'https://edwinwzhe.github.io'
 baseurl: ''
 # google_analytics: 'UA-XXXXXX-X'
@@ -25,6 +25,7 @@ defaults:
 # Build settings
 destination: _site
 paginate: 10
+host: 0.0.0.0
 permalink: /:year/:title/
 markdown: kramdown
 highlighter: rouge
